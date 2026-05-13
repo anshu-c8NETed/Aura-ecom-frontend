@@ -1,7 +1,4 @@
 // src/data/mockProducts.js
-// Drop this file into src/data/ and import MOCK_PRODUCTS from here
-// in FeaturedProducts.jsx and Collection.jsx instead of defining inline.
-// Replace Unsplash URLs with your own product photos when ready.
 
 export const MOCK_PRODUCTS = [
     {
@@ -9,6 +6,7 @@ export const MOCK_PRODUCTS = [
       slug: 'noir-silk-gown',
       name: 'Noir Silk Gown',
       brand: 'AURA',
+      category: 'dresses',
       basePrice: 28500,
       comparePrice: 0,
       isNewArrival: true,
@@ -31,6 +29,7 @@ export const MOCK_PRODUCTS = [
       slug: 'ivory-wool-coat',
       name: 'Ivory Wool Coat',
       brand: 'AURA',
+      category: 'outerwear',
       basePrice: 42000,
       comparePrice: 52000,
       isFeatured: true,
@@ -51,6 +50,7 @@ export const MOCK_PRODUCTS = [
       slug: 'camel-blazer',
       name: 'Camel Structured Blazer',
       brand: 'AURA',
+      category: 'tailoring',
       basePrice: 18500,
       comparePrice: 0,
       isFeatured: true,
@@ -70,6 +70,7 @@ export const MOCK_PRODUCTS = [
       slug: 'velvet-slip',
       name: 'Velvet Bias Slip',
       brand: 'AURA',
+      category: 'dresses',
       basePrice: 12800,
       comparePrice: 15000,
       isNewArrival: true,
@@ -90,6 +91,7 @@ export const MOCK_PRODUCTS = [
       slug: 'cashmere-wrap',
       name: 'Cashmere Wrap Coat',
       brand: 'AURA',
+      category: 'outerwear',
       basePrice: 58000,
       comparePrice: 0,
       images: [
@@ -108,6 +110,7 @@ export const MOCK_PRODUCTS = [
       slug: 'silk-blouse',
       name: 'Duchesse Silk Blouse',
       brand: 'AURA',
+      category: 'tailoring',
       basePrice: 16800,
       comparePrice: 0,
       images: [
@@ -125,6 +128,7 @@ export const MOCK_PRODUCTS = [
       slug: 'wide-trousers',
       name: 'Wide-Leg Trousers',
       brand: 'AURA',
+      category: 'tailoring',
       basePrice: 14200,
       comparePrice: 18000,
       images: [
@@ -143,8 +147,10 @@ export const MOCK_PRODUCTS = [
       slug: 'knit-dress',
       name: 'Merino Knit Dress',
       brand: 'AURA',
+      category: 'dresses',
       basePrice: 22400,
       comparePrice: 0,
+      isNewArrival: true,
       images: [
         { url: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=600&auto=format&fit=crop', isPrimary: true, alt: 'Knit Dress front' },
         { url: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=600&auto=format&fit=crop', alt: 'Knit Dress back' },
