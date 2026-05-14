@@ -1,0 +1,866 @@
+/* ── Design Tokens ─────────────────────────────── */
+:root {
+  --cr:  #FAF8F5;
+  --cr2: #F2EAE0;
+  --cr3: #E8DDD0;
+  --ch:  #1A1714;
+  --ch2: #3D3530;
+  --mu:  #9B8F82;
+  --go:  #B89560;
+  --go2: #D4B478;
+  --bo:  rgba(26,23,20,0.1);
+  --fd:  'Cormorant Garamond', Georgia, serif;
+  --fb:  'Jost', system-ui, sans-serif;
+  --tr:  0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ── Reset ─────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--cr);
+  color: var(--ch);
+  font-family: var(--fb);
+  font-weight: 300;
+  overflow-x: hidden;
+}
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; font-family: var(--fb); }
+img { max-width: 100%; display: block; }
+ul { list-style: none; }
+
+/* ── Scrollbar ─────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--cr); }
+::-webkit-scrollbar-thumb { background: var(--cr3); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--mu); }
+
+/* ── Typography helpers ────────────────────────── */
+.eyebrow {
+  font-size: .58rem;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--go);
+  display: block;
+  margin-bottom: .6rem;
+}
+.display-heading {
+  font-family: var(--fd);
+  font-size: clamp(1.9rem, 3.5vw, 3.2rem);
+  font-weight: 300;
+  line-height: 1.1;
+}
+.display-heading em { font-style: italic; color: var(--mu); }
+
+/* ── Buttons ───────────────────────────────────── */
+.btn-primary {
+  background: var(--ch);
+  color: var(--cr);
+  border: none;
+  padding: .85rem 2.2rem;
+  font-family: var(--fb);
+  font-size: .62rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: color .4s;
+  display: inline-block;
+}
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--go);
+  transform: translateX(-101%);
+  transition: transform var(--tr);
+}
+.btn-primary:hover::before { transform: translateX(0); }
+.btn-primary span { position: relative; z-index: 1; }
+
+.btn-outline {
+  border: 1px solid rgba(250,248,245,.2);
+  color: var(--cr);
+  padding: .85rem 2.2rem;
+  font-family: var(--fb);
+  font-size: .62rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  background: transparent;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .4s;
+  display: inline-block;
+}
+.btn-outline::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--go);
+  transform: translateX(-101%);
+  transition: transform var(--tr);
+}
+.btn-outline:hover { border-color: var(--go); }
+.btn-outline:hover::before { transform: translateX(0); }
+.btn-outline span { position: relative; z-index: 1; }
+
+.btn-ghost {
+  background: none;
+  border: none;
+  font-family: var(--fb);
+  font-size: .62rem;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: var(--ch);
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  transition: gap .3s, color .3s;
+}
+.btn-ghost:hover { gap: 1.1rem; color: var(--go); }
+.btn-ghost::after { content: '→'; }
+
+.va-link {
+  font-size: .58rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--ch);
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  transition: gap .3s, color .3s;
+  cursor: pointer;
+}
+.va-link::after { content: '→'; }
+.va-link:hover { gap: 1.1rem; color: var(--go); }
+
+/* ── Section layout ────────────────────────────── */
+.section { padding: clamp(4rem, 8vw, 8rem) 5vw; }
+.section-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 3.5rem;
+}
+
+/* ── Product Grid ──────────────────────────────── */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.4rem;
+}
+
+/* ── Form inputs ───────────────────────────────── */
+.form-input {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--bo);
+  padding: .85rem 1rem;
+  font-family: var(--fb);
+  font-size: .8rem;
+  color: var(--ch);
+  outline: none;
+  transition: border-color .3s;
+}
+.form-input:focus { border-color: var(--go); }
+.form-input::placeholder { color: var(--mu); }
+
+.form-label {
+  display: block;
+  font-size: .58rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--mu);
+  margin-bottom: .5rem;
+}
+
+/* ── Page padding (below fixed nav) ───────────── */
+.page-offset { padding-top: 62px; }
+
+/* ── Reveal animation base ─────────────────────── */
+.reveal { opacity: 0; transform: translateY(30px); }
+.reveal.visible { opacity: 1; transform: translateY(0); transition: opacity .7s ease, transform .7s ease; }
+
+/* ── Marquee ───────────────────────────────────── */
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes shimmer { 0% { left: -100%; } 100% { left: 100%; } }
+
+/* ── Nav link hover underline ──────────────────── */
+.nav-link {
+  font-size: .62rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--ch);
+  position: relative;
+  transition: color .3s;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--go);
+  transition: width .3s;
+}
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+
+/* ── Loader ────────────────────────────────────── */
+.loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+.loader-ring {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--cr3);
+  border-top-color: var(--go);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Toast ─────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--ch);
+  color: var(--cr);
+  padding: .75rem 2rem;
+  font-size: .62rem;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  z-index: 999;
+  transition: transform .4s var(--tr);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── Cart drawer overlay ───────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26,23,20,0.4);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .4s;
+}
+.overlay.open { opacity: 1; pointer-events: all; }
+
+/* ══════════════════════════════════════════════════════════════════
+   AURA — Responsive Styles
+   Add this file AFTER index.css in your entry point:
+   import './responsive.css'
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Breakpoints used:
+   1024px  tablet landscape / small laptop
+    768px  tablet portrait
+    600px  large phone landscape
+    480px  phone portrait
+   ──────────────────────────────────────────────────────────────── */
+
+/* ═══════════════════════════════════════════════════
+   GLOBAL HELPERS
+═══════════════════════════════════════════════════ */
+.product-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 1024px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: .75rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   NAVBAR
+═══════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  /* Compress nav link gaps */
+  nav ul {
+    gap: 1.2rem !important;
+  }
+}
+
+@media (max-width: 900px) {
+  /* Hide nav links on tablet; show hamburger-style collapsed or icon-only */
+  nav ul {
+    display: none !important;
+  }
+
+  /* Give logo full remaining width */
+  nav > a:first-child {
+    flex: unset !important;
+  }
+
+  /* Actions pull right */
+  nav > div:last-child {
+    flex: 1 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  nav {
+    padding: 0 4vw !important;
+  }
+
+  /* Tighten icon gaps on small screens */
+  nav > div:last-child {
+    gap: 1rem !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  /* Stack hero panels */
+  section[style*="gridTemplateColumns: '1fr 1fr'"],
+  .hero-section {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Target the Hero section specifically via its unique child class */
+@media (max-width: 900px) {
+  /* Hero left panel */
+  .hero-eyebrow ~ * {
+    font-size: clamp(2.4rem, 6vw, 3.5rem);
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   HOME SECTIONS (Hero, Editorial, Category)
+   These use inline grid styles — we override via
+   wrapper selectors where possible and add utility
+   classes below.
+═══════════════════════════════════════════════════ */
+
+/* Hero — two-column → single column */
+@media (max-width: 900px) {
+  /* The hero right panel (image side) gets capped height */
+  section .hero-fig {
+    transform: scale(0.85);
+  }
+}
+
+/* Editorial — two-column → single column */
+@media (max-width: 768px) {
+  /* Editorial grid */
+  section[style*="gridTemplateColumns: '1fr 1fr'"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Category grid — 4 → 2 columns */
+@media (max-width: 900px) {
+  .cg-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .cg-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: .6rem !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   COLLECTION PAGE
+═══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Auto-fill product grid on collection page */
+  div[style*="auto-fill, minmax(220px"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  div[style*="auto-fill, minmax(220px"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: .75rem !important;
+  }
+
+  /* Sidebar overlay mode on mobile */
+  /* Filters become a full-width overlay toggle */
+}
+
+/* ═══════════════════════════════════════════════════
+   PRODUCT DETAIL
+═══════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  /* Gallery + info → stack vertically */
+  .pd-gallery {
+    flex-direction: column-reverse !important;
+  }
+
+  /* Thumbnails go horizontal on mobile */
+  .pd-gallery > div:first-child {
+    flex-direction: row !important;
+    width: 100% !important;
+    gap: .5rem !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .pd-gallery > div:first-child > div {
+    width: 60px !important;
+    flex-shrink: 0 !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   AUTH PAGES (Login / Register)
+═══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Hide brand left panel, show only form */
+  .auth-left {
+    display: none !important;
+  }
+
+  /* Form panel goes full width */
+  div[style*="gridTemplateColumns: '1fr 1fr'"][style*="minHeight: '100vh'"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-panel {
+    padding: 1rem !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   CHECKOUT
+═══════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  /* Stack form + order summary vertically */
+  div[style*="minmax(0,1.3fr) minmax(280px"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Order summary gets its border back */
+  div[style*="minmax(0,1.3fr) minmax(280px"] > div:first-child {
+    border-right: none !important;
+    border-bottom: 1px solid var(--bo);
+  }
+}
+
+@media (max-width: 600px) {
+  /* Delivery form — name / contact rows → single column */
+  .co-step > div[style*="gridTemplateColumns: '1fr 1fr'"],
+  .co-step div[style*="1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* City/State/Pincode row → stack */
+  .co-step div[style*="1fr 1fr 120px"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .co-step div[style*="1fr 1fr 120px"] > div:last-child {
+    grid-column: 1 / -1;
+  }
+
+  /* Step indicator — compress */
+  .step-indicator span {
+    display: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   CART DRAWER
+═══════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  /* Cart drawer full-width on phone */
+  div[style*="min(440px, 100vw)"] {
+    width: 100vw !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  footer > div:first-child {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 2rem !important;
+  }
+
+  /* Brand column spans full width */
+  footer > div:first-child > div:first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 480px) {
+  footer > div:first-child {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1.5rem !important;
+  }
+
+  footer > div:last-child {
+    flex-direction: column !important;
+    gap: .5rem !important;
+    text-align: center;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   SECTION HEADER (featured products, category etc.)
+═══════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  .section-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+    margin-bottom: 2rem !important;
+  }
+
+  .section {
+    padding: clamp(2.5rem, 6vw, 4rem) 5vw !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   NEWSLETTER
+═══════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  .nl-content form {
+    flex-direction: column !important;
+  }
+
+  .nl-content form input {
+    border-right: 1px solid var(--bo) !important;
+    border-bottom: none !important;
+  }
+
+  .nl-content form button {
+    width: 100% !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   MARQUEE BAND — always fine, but ensure no overflow
+═══════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  div[style*="animation: 'marquee"] {
+    animation-duration: 20s !important;
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════
+   COMPONENT-LEVEL RESPONSIVE OVERRIDES
+   These use more specific selectors / utility classes added below
+   to handle inline styles that media queries can't easily target.
+   ══════════════════════════════════════════════════════════════════
+
+   Implementation instructions:
+   ─────────────────────────────
+   Since most layout styles are inline in the JSX, the cleanest
+   approach is to add CSS classes to the relevant wrapper elements.
+   The classes below correspond to the additions described in the
+   companion RESPONSIVE_NOTES.md file.
+*/
+
+/* ── Hero ── */
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+  padding-top: 62px;
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .hero-right {
+    min-height: 55vw;
+    max-height: 70vw;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero-right {
+    min-height: 80vw;
+  }
+}
+
+/* ── Editorial ── */
+.editorial-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .editorial-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .editorial-visual {
+    min-height: 380px;
+  }
+}
+
+/* ── Product Detail grid ── */
+.pd-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  padding: 1rem 5vw 5rem;
+}
+
+@media (max-width: 900px) {
+  .pd-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+/* ── Auth grid ── */
+.auth-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+  .auth-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-left {
+    display: none;
+  }
+}
+
+/* ── Checkout main layout ── */
+.checkout-grid {
+  display: grid;
+  gap: 0;
+  min-height: 80vh;
+}
+
+.checkout-grid.with-summary {
+  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 480px);
+}
+
+.checkout-grid.confirmation {
+  grid-template-columns: 1fr;
+}
+
+@media (max-width: 900px) {
+  .checkout-grid.with-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .checkout-left {
+    border-right: none !important;
+    border-bottom: 1px solid var(--bo);
+  }
+}
+
+/* ── Checkout delivery form grids ── */
+.co-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.co-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 120px;
+  gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .co-row-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .co-row-3 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .co-row-3 > div:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ── Trust bar (product detail) ── */
+.pd-trust {
+  display: flex;
+  gap: 1.5rem;
+}
+
+@media (max-width: 480px) {
+  .pd-trust {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+/* ── Category grid ── */
+.cg-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 900px) {
+  .cg-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── Footer grid ── */
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 3rem;
+}
+
+@media (max-width: 900px) {
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+}
+
+/* ── Collection page header ── */
+@media (max-width: 600px) {
+  .col-page-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: .5rem;
+  }
+}
+
+/* ── Collection sidebar ── */
+@media (max-width: 768px) {
+  /* Filters become an overlay on mobile */
+  .col-sidebar {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 300;
+    background: var(--cr);
+    border-right: 1px solid var(--bo);
+    box-shadow: 4px 0 24px rgba(26, 23, 20, 0.12);
+  }
+}
+
+/* ── Product card — compact on very small screens ── */
+@media (max-width: 380px) {
+  .fp-card a,
+  .col-card a {
+    font-size: 0.9rem;
+  }
+}
+
+/* ── Marquee ── */
+@media (max-width: 600px) {
+  div[style*="marquee"] span[style*="letterSpacing"] {
+    font-size: .5rem !important;
+  }
+}
+
+/* ── Page offset accounts for fixed nav ── */
+.page-offset {
+  padding-top: 62px;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   TOUCH & MOBILE UX IMPROVEMENTS
+══════════════════════════════════════════════════════════════════ */
+
+/* Ensure tap targets are at least 44×44 */
+@media (max-width: 768px) {
+  button,
+  a {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* But don't stretch inline text links */
+  p a,
+  li a,
+  .eyebrow,
+  .nav-link,
+  .va-link {
+    min-height: unset;
+    min-width: unset;
+    display: inline;
+  }
+
+  .va-link,
+  .nav-link {
+    display: flex;
+  }
+}
+
+/* Smooth scrolling within drawers/panels */
+@media (max-width: 768px) {
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Prevent horizontal overflow from fixed-width elements */
+@media (max-width: 600px) {
+  .hero-fig {
+    width: 180px !important;
+    height: 360px !important;
+  }
+
+  .hero-fig * {
+    /* Scale child elements proportionally */
+    transform-origin: top center;
+  }
+}
