@@ -3,7 +3,6 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import ScrollTrigger from 'gsap/ScrollTrigger'
 import { Link } from 'react-router-dom'
-import { ArrowUpRight } from 'lucide-react'
 import RevealText from '../layout/RevealText'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -55,80 +54,77 @@ export default function CategoryGrid() {
   const ref = useRef(null)
 
   useGSAP(() => {
-    // Tiles entrance — cascade with clip-path reveal
-    const tiles = ref.current?.querySelectorAll('.cg3-tile')
+    const tiles = ref.current?.querySelectorAll('.cg2-tile')
     if (!tiles?.length) return
 
+    /* ── Tile entrance: clip-path curtain + subtle scale ── */
     tiles.forEach((tile, i) => {
       gsap.fromTo(tile,
+        { clipPath: 'inset(100% 0 0 0)', scale: 1.05 },
         {
-          clipPath: 'inset(100% 0 0 0)',
-          scale: 1.08,
-        },
-        {
-          clipPath: 'inset(0% 0 0 0)',
-          scale: 1,
-          duration: 1.2,
-          ease: 'power4.inOut',
-          delay: i * 0.1,
-          scrollTrigger: {
-            trigger: tile,
-            start: 'top 85%',
-            once: true,
-          },
+          clipPath: 'inset(0% 0 0 0)', scale: 1,
+          duration: 1.1, ease: 'power4.inOut',
+          delay: i * 0.08,
+          scrollTrigger: { trigger: tile, start: 'top 85%', once: true },
         }
       )
 
-      // Label reveal after clip
-      const label = tile.querySelector('.cg3-label')
+      /* Label slides up after the clip reveals */
+      const label = tile.querySelector('.cg-label')
       if (label) {
         gsap.fromTo(label,
-          { y: 40, opacity: 0 },
+          { y: 30, opacity: 0 },
           {
             y: 0, opacity: 1,
-            duration: 0.8,
-            ease: 'power3.out',
-            delay: i * 0.1 + 0.5,
-            scrollTrigger: {
-              trigger: tile,
-              start: 'top 85%',
-              once: true,
-            },
+            duration: 0.7, ease: 'power3.out',
+            delay: i * 0.08 + 0.45,
+            scrollTrigger: { trigger: tile, start: 'top 85%', once: true },
           }
         )
       }
 
-      // Parallax on each tile's image
-      const img = tile.querySelector('.cg3-img')
+      /* Per-tile parallax on the image */
+      const img = tile.querySelector('.cg-img')
       if (img) {
         gsap.to(img, {
-          yPercent: -14,
+          yPercent: -12,
           ease: 'none',
           scrollTrigger: {
             trigger: tile,
             start: 'top bottom',
             end: 'bottom top',
-            scrub: 0.3 + i * 0.1,
+            scrub: 0.25 + i * 0.08,
           },
         })
       }
+    })
+
+    /* Header rule sweep */
+    gsap.from('.cg-rule', {
+      scaleX: 0, duration: 1, ease: 'power3.out', transformOrigin: 'left',
+      scrollTrigger: { trigger: '.cg-rule', start: 'top 90%', once: true },
     })
   }, { scope: ref })
 
   return (
     <section ref={ref} className="section" style={{ background: 'var(--cr2)' }}>
       {/* ── Header ── */}
-      <div className="section-header" style={{ marginBottom: 'clamp(2.5rem,5vw,4rem)' }}>
+      <div className="section-header">
         <div>
           <span className="eyebrow">Browse by Category</span>
           <RevealText tag="h2" className="display-heading" stagger={0.03} start="top 85%">
             Shop by Wardrobe
           </RevealText>
         </div>
-        <Link to="/collection" className="va-link" style={{ display: 'flex', alignItems: 'center', gap: '.4rem' }}>
-          All Categories <ArrowUpRight size={13} strokeWidth={1.5} />
-        </Link>
+        <Link to="/collection" className="va-link">All Categories</Link>
       </div>
+
+      {/* Accent rule */}
+      <div className="cg-rule" style={{
+        height: 1,
+        background: 'linear-gradient(to right, var(--go), var(--bo))',
+        marginBottom: 'clamp(2rem,4vw,3rem)',
+      }} />
 
       {/* ── Masonry grid ── */}
       <div className="cg2-masonry">
@@ -136,7 +132,7 @@ export default function CategoryGrid() {
           <Link
             key={cat.label}
             to={cat.to}
-            className="cg2-tile cg3-tile"
+            className="cg2-tile"
             style={{
               display: 'block',
               textDecoration: 'none',
@@ -166,9 +162,9 @@ function CategoryTile({ cat }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Photo — extends for parallax headroom */}
+      {/* Image — extends 24% for parallax headroom */}
       <img
-        className="cg3-img"
+        className="cg-img"
         src={cat.img}
         alt={cat.label}
         style={{
@@ -176,100 +172,87 @@ function CategoryTile({ cat }) {
           top: '-12%', left: 0, right: 0,
           width: '100%', height: '124%',
           objectFit: 'cover',
-          transition: 'transform .8s cubic-bezier(.25,.46,.45,.94)',
-          transform: hovered ? 'scale(1.08)' : 'scale(1)',
+          transition: 'transform .7s cubic-bezier(.25,.46,.45,.94)',
+          transform: hovered ? 'scale(1.06)' : 'scale(1)',
           display: 'block',
         }}
       />
 
-      {/* Multi-layer gradient */}
+      {/* Gradient overlay — deepens on hover */}
       <div style={{
         position: 'absolute', inset: 0,
-        background: `linear-gradient(
-          to top,
-          rgba(26,23,20,0.85) 0%,
-          rgba(26,23,20,0.35) 40%,
-          transparent 100%
-        )`,
-        transition: 'opacity .5s',
-        opacity: hovered ? 0.95 : 0.75,
+        background: 'linear-gradient(to top, rgba(26,23,20,0.8) 0%, rgba(26,23,20,0.3) 45%, transparent 100%)',
+        transition: 'opacity .4s',
+        opacity: hovered ? 0.95 : 0.7,
       }} />
 
-      {/* Colour bloom on hover */}
+      {/* Colour bloom */}
       <div style={{
         position: 'absolute', inset: 0,
-        background: `radial-gradient(circle at 50% 100%, ${cat.accent}25, transparent 70%)`,
+        background: `radial-gradient(circle at 50% 100%, ${cat.accent}20, transparent 65%)`,
         opacity: hovered ? 1 : 0,
-        transition: 'opacity .6s ease',
+        transition: 'opacity .5s',
         pointerEvents: 'none',
       }} />
 
       {/* Label group */}
-      <div className="cg3-label" style={{
+      <div className="cg-label" style={{
         position: 'absolute', bottom: 0, left: 0, right: 0,
-        padding: 'clamp(1rem,2vw,1.6rem) clamp(1.2rem,2vw,1.8rem)',
+        padding: 'clamp(1rem,2vw,1.5rem) clamp(1.2rem,2vw,1.6rem)',
       }}>
-        {/* Category name */}
         <p style={{
           fontFamily: 'var(--fd)',
-          fontSize: cat.layout === 'wide' ? 'clamp(1.6rem,2.5vw,2.2rem)' : 'clamp(1.3rem,2vw,1.8rem)',
-          fontWeight: 300, fontStyle: 'italic',
-          color: '#FAF8F5', lineHeight: 1.05, marginBottom: '.4rem',
-          transition: 'transform .5s cubic-bezier(.25,.46,.45,.94)',
-          transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
+          fontSize: cat.layout === 'wide' ? 'clamp(1.4rem,2.5vw,2rem)' : 'clamp(1.2rem,1.8vw,1.6rem)',
+          fontWeight: 300,
+          color: '#FAF8F5', lineHeight: 1.1, marginBottom: '.35rem',
+          transition: 'transform .4s cubic-bezier(.25,.46,.45,.94)',
+          transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
         }}>
           {cat.label}
         </p>
 
-        {/* Sub + CTA row */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          overflow: 'hidden',
         }}>
           <span style={{
-            fontSize: '.48rem', letterSpacing: '.22em', textTransform: 'uppercase',
+            fontSize: '.48rem', letterSpacing: '.2em', textTransform: 'uppercase',
             color: 'rgba(250,248,245,0.45)',
-            transition: 'color .4s',
+            transition: 'color .35s',
             ...(hovered ? { color: cat.accent } : {}),
           }}>
             {cat.sub}
           </span>
 
-          {/* Explore CTA — slides in on hover */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '.4rem',
-            transform: hovered ? 'translateX(0)' : 'translateX(24px)',
+          {/* Explore — slides in on hover */}
+          <span style={{
+            fontSize: '.48rem', letterSpacing: '.16em', textTransform: 'uppercase',
+            color: cat.accent,
+            transform: hovered ? 'translateX(0)' : 'translateX(16px)',
             opacity: hovered ? 1 : 0,
-            transition: 'transform .5s cubic-bezier(.25,.46,.45,.94), opacity .4s',
+            transition: 'transform .45s cubic-bezier(.25,.46,.45,.94), opacity .35s',
           }}>
-            <span style={{
-              fontSize: '.48rem', letterSpacing: '.18em', textTransform: 'uppercase',
-              color: cat.accent,
-            }}>
-              Explore
-            </span>
-            <ArrowUpRight size={12} strokeWidth={1.5} color={cat.accent} />
-          </div>
+            Explore →
+          </span>
         </div>
 
         {/* Animated underline */}
         <div style={{
-          height: '1px', marginTop: '.8rem',
+          height: '1px', marginTop: '.7rem',
           background: cat.accent,
           transform: hovered ? 'scaleX(1)' : 'scaleX(0)',
           transformOrigin: 'left',
-          transition: 'transform .6s cubic-bezier(.25,.46,.45,.94)',
-          opacity: 0.5,
+          transition: 'transform .55s cubic-bezier(.25,.46,.45,.94)',
+          opacity: 0.4,
         }} />
       </div>
 
-      {/* Accent dot — pulses on hover */}
+      {/* Accent dot */}
       <div style={{
-        position: 'absolute', top: '1rem', right: '1rem',
+        position: 'absolute', top: '.9rem', right: '.9rem',
         width: 6, height: 6, borderRadius: '50%',
         background: cat.accent,
-        transition: 'transform .4s, opacity .4s',
-        transform: hovered ? 'scale(1.6)' : 'scale(1)',
+        transition: 'transform .35s, opacity .35s',
+        transform: hovered ? 'scale(1.5)' : 'scale(1)',
         opacity: hovered ? 1 : 0.5,
       }} />
     </div>
