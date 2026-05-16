@@ -3,6 +3,7 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import ScrollTrigger from 'gsap/ScrollTrigger'
 import { Link } from 'react-router-dom'
+import { ArrowRight } from 'lucide-react'
 import { useFeaturedProducts } from '../../hooks/useProducts'
 import ProductCard from '../product/ProductCard'
 import { MOCK_PRODUCTS } from '../../data/mockProducts'
@@ -19,11 +20,10 @@ export default function FeaturedProducts() {
   const apiProducts = data?.data?.products ?? data?.data ?? []
   const products    = Array.isArray(apiProducts) && apiProducts.length ? apiProducts : MOCK_FEATURED
 
-  /* ── Cards: stagger up from below on scroll entry ── */
   useGSAP(() => {
     if (isLoading || !products.length) return
 
-    const grid = containerRef.current?.querySelector('.product-grid')
+    const grid = containerRef.current?.querySelector('.fp-grid')
     if (!grid) return
 
     const rect           = grid.getBoundingClientRect()
@@ -34,41 +34,47 @@ export default function FeaturedProducts() {
       return
     }
 
-    // Staggered upward reveal — each card also gets a subtle scale
-    gsap.from('.fp-card', {
-      opacity: 0,
-      y: 50,
-      scale: 0.97,
-      stagger: { amount: 0.5, from: 'start' },
-      duration: 0.85,
-      ease: 'power3.out',
-      immediateRender: false,
-      scrollTrigger: {
-        trigger: '.product-grid',
-        start: 'top 78%',
-        once: true,
-      },
-    })
+    /* ── Card entrance: stagger up with scale + clip-path ── */
+    gsap.fromTo('.fp-card',
+      { opacity: 0, y: 60, scale: 0.96, clipPath: 'inset(8% 0 0 0)' },
+      {
+        opacity: 1, y: 0, scale: 1, clipPath: 'inset(0% 0 0 0)',
+        stagger: { amount: 0.6, from: 'start' },
+        duration: 1,
+        ease: 'power3.out',
+        immediateRender: false,
+        scrollTrigger: {
+          trigger: '.fp-grid',
+          start: 'top 80%',
+          once: true,
+        },
+      }
+    )
 
-    // Subtle parallax on each card image — they move at slightly different rates
-    // (evokes the Canvas.jsx data-scroll-speed stagger from the inspiration)
+    /* ── Per-card image parallax at different speeds ── */
     containerRef.current.querySelectorAll('.fp-card img').forEach((img, i) => {
-      const speed = 0.04 + i * 0.015
       gsap.to(img, {
-        yPercent: -8 - i * 3,
+        yPercent: -10 - i * 3,
         ease: 'none',
         scrollTrigger: {
           trigger: img.closest('.fp-card'),
           start: 'top bottom',
           end:   'bottom top',
-          scrub: speed,
+          scrub: 0.3 + i * 0.12,
         },
       })
+    })
+
+    /* ── Header eyebrow line sweep ── */
+    gsap.from('.fp-rule', {
+      scaleX: 0, duration: 1, ease: 'power3.out', transformOrigin: 'left',
+      scrollTrigger: { trigger: '.fp-rule', start: 'top 90%', once: true },
     })
   }, { scope: containerRef, dependencies: [isLoading, products.length] })
 
   return (
     <section ref={containerRef} className="section">
+      {/* ── Header ── */}
       <div className="section-header fp-header">
         <div>
           <span className="eyebrow">Curated Selection</span>
@@ -76,13 +82,23 @@ export default function FeaturedProducts() {
             Featured Pieces
           </RevealText>
         </div>
-        <Link to="/collection" className="va-link">View All</Link>
+        <Link to="/collection" className="va-link" style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
+          View All <ArrowRight size={13} strokeWidth={1.5} />
+        </Link>
       </div>
 
+      {/* Thin accent rule — sweeps in */}
+      <div className="fp-rule" style={{
+        height: 1,
+        background: 'linear-gradient(to right, var(--go), var(--bo))',
+        marginBottom: 'clamp(2rem,4vw,3.5rem)',
+      }} />
+
+      {/* ── Grid ── */}
       {isLoading ? (
         <div className="loader"><div className="loader-ring" /></div>
       ) : (
-        <div className="product-grid">
+        <div className="fp-grid">
           {products.slice(0, 4).map(product => (
             <div key={product._id} className="fp-card">
               <ProductCard product={product} />
