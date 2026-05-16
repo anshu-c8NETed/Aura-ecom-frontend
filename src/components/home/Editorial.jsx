@@ -1,23 +1,3 @@
-/**
- * Testimonials.jsx
- * src/components/home/Testimonials.jsx
- *
- * DESIGN DIRECTION: "Silent Statement"
- * ─────────────────────────────────────
- * Inspired by the editorial silence of Maison Margiela, Celine, and The Row's
- * digital presence. One quote owns the entire viewport. Nothing competes.
- *
- * WHAT MAKES IT AWARD-LEVEL:
- *  • Full-viewport, pinned — the quote IS the layout, not inside it
- *  • Giant Cormorant Garamond italic, word-by-word entrance/exit via GSAP
- *  • A single 1px gold rule that wipes left→right on transition
- *  • Client name + location in micro-uppercase, bottom-anchored
- *  • Navigation: two barely-there arrows — the rest is silence
- *  • Background: near-black + extremely subtle film grain + one radial bloom
- *  • The quote NUMBER in massive ghost numerals behind everything
- *  • Zero visible carousels, zero progress bars, zero noise
- */
-
 import { useRef, useState, useCallback, useEffect } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
