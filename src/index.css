@@ -296,16 +296,30 @@ ul { list-style: none; }
   }
 }
 
-/* ── Featured editorial grid (FeaturedProducts v2) ── */
+/* ── Featured editorial grid (FeaturedProducts) ── */
+.fp-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(1rem, 2vw, 1.8rem);
+}
+
 @media (max-width: 1024px) {
-  .fp2-card {
-    padding-top: 0 !important;
+  .fp-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-  .fp2-card {
-    padding-top: 0 !important;
+  .fp-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .fp-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: .75rem;
   }
 }
 
