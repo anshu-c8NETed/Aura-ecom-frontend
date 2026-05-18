@@ -1,411 +1,436 @@
-import { useRef, useState, useCallback, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import ScrollTrigger from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const T = [
-  {
-    quote: ['Wearing AURA is the closest', 'I have come to wearing', 'silence itself.'],
-    author: 'Priya Mehta',
-    location: 'Mumbai',
-    piece: 'Noir Silk Gown',
-    num: '01',
-  },
-  {
-    quote: ['Nothing has fit quite like this.', 'It moves the way a good', 'sentence moves.'],
-    author: 'Anika Bose',
-    location: 'New Delhi',
-    piece: 'Ivory Wool Coat',
-    num: '02',
-  },
-  {
-    quote: ['Three people asked where I\'d been.', 'I had simply', 'changed.'],
-    author: 'Rhea Singhania',
-    location: 'Bangalore',
-    piece: 'Dusk Blazer',
-    num: '03',
-  },
-  {
-    quote: ['Restraint really is', 'the highest form', 'of luxury.'],
-    author: 'Kavya Nair',
-    location: 'Chennai',
-    piece: 'Stone Linen Set',
-    num: '04',
-  },
-  {
-    quote: ['Quiet authority', 'that no louder brand', 'has ever given me.'],
-    author: 'Mira Choudhury',
-    location: 'Kolkata',
-    piece: 'Onyx Evening Dress',
-    num: '05',
-  },
+/* ── breakpoint hook (same pattern as Navbar.jsx) ────────────────── */
+function useWindowWidth() {
+  const [w, setW] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth : 1280
+  )
+  useEffect(() => {
+    const h = () => setW(window.innerWidth)
+    window.addEventListener('resize', h, { passive: true })
+    return () => window.removeEventListener('resize', h)
+  }, [])
+  return w
+}
+
+const LINES = [
+  [
+    { text: 'We dress' },
+    {
+      img: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&auto=format&fit=crop&q=80',
+      alt: 'AURA editorial — silk drape',
+    },
+    { text: 'people' },
+  ],
+  [
+    { text: 'in' },
+    {
+      img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80',
+      alt: 'AURA editorial — structured gown',
+    },
+    { text: 'silence' },
+  ],
+  [
+    { text: '& grace.' },
+    {
+      img: 'https://images.unsplash.com/photo-1551232864-3f0890e580d9?w=800&auto=format&fit=crop&q=80',
+      alt: 'AURA editorial — ivory coat',
+    },
+  ],
 ]
 
-/* ─── Single animated quote line ────────────────────────────────── */
-function QuoteLine({ text, delay, direction }) {
-  const ref = useRef(null)
+const SIDE_IMG =
+  'https://images.unsplash.com/photo-1566206091558-7f218b696731?w=900&auto=format&fit=crop&q=80'
 
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
+const THUMBS = [
+  'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=300&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=300&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=300&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=300&auto=format&fit=crop&q=80',
+]
 
-    // Split into word spans
-    const words = text.split(' ')
-    el.innerHTML = words
-      .map(w => `<span class="qw" style="display:inline-block;overflow:hidden;vertical-align:bottom">` +
-        `<span class="qi" style="display:inline-block">${w}</span></span>`)
-      .join('<span class="qs" style="display:inline-block;width:.28em"> </span>')
+export default function Editorial() {
+  const ref   = useRef(null)
+  const width = useWindowWidth()
 
-    const inner = el.querySelectorAll('.qi')
-    gsap.fromTo(inner,
-      { y: direction === 'up' ? '105%' : '-105%', opacity: 0 },
+  const isMobile = width < 640
+  const isTablet = width >= 640 && width < 1024
+
+  /* Slot sizes scale with viewport */
+  const SLOT_H       = isMobile ? 60  : isTablet ? 76  : 100
+  const SLOT_W_TARGET = isMobile ? 130 : isTablet ? 180 : 240
+
+  useGSAP(() => {
+    const section = ref.current
+
+    /* Eyebrow */
+    gsap.from('.ed-eyebrow-line', {
+      scaleX: 0, transformOrigin: 'left', duration: 1, ease: 'power3.inOut',
+      scrollTrigger: { trigger: section, start: 'top 78%', once: true },
+    })
+    gsap.from('.ed-eyebrow-text', {
+      opacity: 0, x: -12, duration: 0.7, delay: 0.3, ease: 'power3.out',
+      scrollTrigger: { trigger: section, start: 'top 78%', once: true },
+    })
+
+    /* Word-mask — fromTo so words stay visible until ST fires */
+    gsap.fromTo(
+      section.querySelectorAll('.ed-word-inner'),
+      { yPercent: 110, opacity: 0 },
       {
-        y: '0%', opacity: 1,
-        duration: 1.1,
-        ease: 'expo.out',
-        stagger: 0.055,
-        delay,
+        yPercent: 0, opacity: 1,
+        duration: 1.05, ease: 'power3.out',
+        stagger: { each: 0.065, ease: 'power1.out' },
+        scrollTrigger: { trigger: '.ed-headline', start: 'top 82%', once: true },
       }
     )
 
-    return () => gsap.killTweensOf(inner)
-  }, [text, delay, direction])
+    /* Image slots — width + clip-path wipe */
+    section.querySelectorAll('.ed-line').forEach(line => {
+      const slot = line.querySelector('.ed-img-slot')
+      const img  = line.querySelector('.ed-slot-img')
+      if (!slot || !img) return
 
-  return (
-    <div
-      ref={ref}
-      style={{
-        fontFamily: 'var(--fd)',
-        fontSize: 'clamp(2.4rem, 5.5vw, 6.4rem)',
-        fontWeight: 300,
-        fontStyle: 'italic',
-        lineHeight: 1.08,
-        color: 'rgba(250,248,245,0.92)',
-        letterSpacing: '-0.02em',
-        willChange: 'transform',
-        marginBottom: '0.12em',
-      }}
-    />
-  )
-}
+      gsap.set(img, { clipPath: 'inset(0% 0% 100% 0%)' })
 
-/* ─── Main ──────────────────────────────────────────────────────── */
-export default function Testimonials() {
-  const [idx, setIdx]           = useState(0)
-  const [dir, setDir]           = useState('up')
-  const [transitioning, setT]   = useState(false)
-  const [key, setKey]           = useState(0)
-  const sectionRef              = useRef(null)
-  const ruleRef                 = useRef(null)
-  const metaRef                 = useRef(null)
-  const numRef                  = useRef(null)
-
-  const current = T[idx]
-
-  /* Section entrance */
-  useGSAP(() => {
-    const el = sectionRef.current
-    if (!el) return
-    gsap.from(el.querySelector('.tm-enter'), {
-      opacity: 0, duration: 1.2, ease: 'power2.out',
-      scrollTrigger: { trigger: el, start: 'top 70%', once: true },
+      const tl = gsap.timeline({
+        scrollTrigger: { trigger: line, start: 'top 85%', end: 'top 38%', scrub: 1.4 },
+      })
+      tl.fromTo(slot, { width: 0 }, { width: SLOT_W_TARGET, ease: 'none' }, 0)
+      tl.fromTo(img,
+        { clipPath: 'inset(0% 0% 100% 0%)' },
+        { clipPath: 'inset(0% 0% 0% 0%)', ease: 'power2.out' },
+        0.08
+      )
     })
-  }, { scope: sectionRef })
 
-  /* Transition to a new quote */
-  const goTo = useCallback((newIdx) => {
-    if (transitioning || newIdx === idx) return
-    setT(true)
-    const direction = newIdx > idx ? 'down' : 'up'
+    /* Divider */
+    gsap.from('.ed-divider', {
+      scaleX: 0, transformOrigin: 'left', duration: 1.1, ease: 'power3.inOut',
+      scrollTrigger: { trigger: '.ed-lower', start: 'top 78%', once: true },
+    })
 
-    // Exit: rule wipes right, meta fades, ghost num fades
-    const tl = gsap.timeline({
-      onComplete: () => {
-        setDir(direction === 'down' ? 'up' : 'down')
-        setIdx(newIdx)
-        setKey(k => k + 1)
-        setT(false)
+    /* Side image */
+    gsap.fromTo('.ed-side-img',
+      { clipPath: 'inset(100% 0% 0% 0%)' },
+      {
+        clipPath: 'inset(0% 0% 0% 0%)', duration: 1.35, ease: 'power3.inOut',
+        scrollTrigger: { trigger: '.ed-lower', start: 'top 78%', once: true },
       }
+    )
+    gsap.to('.ed-side-img-inner', {
+      yPercent: -10, ease: 'none',
+      scrollTrigger: { trigger: '.ed-lower', start: 'top bottom', end: 'bottom top', scrub: 1 },
     })
 
-    // Sweep the rule off to the right
-    if (ruleRef.current) {
-      tl.to(ruleRef.current, {
-        scaleX: 0, transformOrigin: 'right center',
-        duration: 0.55, ease: 'power3.inOut',
-      }, 0)
-    }
+    /* Body stagger */
+    gsap.from('.ed-body-el', {
+      opacity: 0, y: 22, duration: 0.75, stagger: 0.1, ease: 'power3.out',
+      scrollTrigger: { trigger: '.ed-lower', start: 'top 72%', once: true },
+    })
 
-    // Fade meta + ghost number
-    if (metaRef.current) tl.to(metaRef.current, { opacity: 0, y: -8, duration: 0.4, ease: 'power2.in' }, 0)
-    if (numRef.current)  tl.to(numRef.current,  { opacity: 0, duration: 0.3 }, 0)
-
-    tl.to({}, { duration: 0.15 }) // brief hold
-
-  }, [idx, transitioning])
-
-  /* After idx changes: re-enter rule + meta + ghost num */
-  useEffect(() => {
-    if (key === 0) return // skip initial mount
-
-    const tl = gsap.timeline({ delay: 0.1 })
-
-    if (ruleRef.current) {
-      gsap.set(ruleRef.current, { scaleX: 0, transformOrigin: 'left center' })
-      tl.to(ruleRef.current, {
-        scaleX: 1,
-        duration: 0.9, ease: 'power3.inOut',
-      }, 0.25)
-    }
-
-    if (metaRef.current) {
-      gsap.set(metaRef.current, { opacity: 0, y: 12 })
-      tl.to(metaRef.current, { opacity: 1, y: 0, duration: 0.65, ease: 'power3.out' }, 0.55)
-    }
-
-    if (numRef.current) {
-      gsap.set(numRef.current, { opacity: 0 })
-      tl.to(numRef.current, { opacity: 1, duration: 0.8 }, 0.3)
-    }
-  }, [key])
-
-  /* Keyboard nav */
-  useEffect(() => {
-    const handler = (e) => {
-      if (e.key === 'ArrowRight') goTo(Math.min(idx + 1, T.length - 1))
-      if (e.key === 'ArrowLeft')  goTo(Math.max(idx - 1, 0))
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [idx, goTo])
+    /* Thumbs pop-in */
+    gsap.fromTo('.ed-thumb',
+      { scale: 0, transformOrigin: 'center center' },
+      {
+        scale: 1, duration: 0.65, ease: 'power3.out',
+        stagger: { each: 0.09, ease: 'power1.out' },
+        scrollTrigger: { trigger: '.ed-thumb-strip', start: 'top 84%', once: true },
+      }
+    )
+  }, { scope: ref, dependencies: [isMobile, isTablet, SLOT_W_TARGET, SLOT_H] })
 
   return (
     <section
-      ref={sectionRef}
+      ref={ref}
       style={{
-        position: 'relative',
-        background: '#0D0B09',
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        overflow: 'hidden',
-        padding: 'clamp(6rem,12vw,11rem) clamp(2rem,8vw,10rem)',
+        background:    'var(--cr2)',
+        overflow:      'hidden',
+        paddingTop:    'clamp(4rem,9vw,10rem)',
+        paddingBottom: 'clamp(4rem,9vw,10rem)',
       }}
     >
-      {/* ── Film grain ── */}
+      {/* ── Eyebrow ─────────────────────────────────────────────────── */}
       <div style={{
-        position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
-        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
-        opacity: 0.032,
-      }} />
-
-      {/* ── Radial bloom — bottom centre ── */}
-      <div style={{
-        position: 'absolute', bottom: '-10%', left: '50%',
-        transform: 'translateX(-50%)',
-        width: '70%', height: '55%',
-        background: 'radial-gradient(ellipse at 50% 100%, rgba(184,149,96,0.07), transparent 65%)',
-        pointerEvents: 'none',
-        zIndex: 0,
-      }} />
-
-      {/* ── Ghost number — enormous, behind everything ── */}
-      <div
-        ref={numRef}
-        style={{
-          position: 'absolute',
-          right: 'clamp(-1rem,2vw,4rem)',
-          top: '50%',
-          transform: 'translateY(-60%)',
-          fontFamily: 'var(--fd)',
-          fontSize: 'clamp(16rem,30vw,28rem)',
-          fontWeight: 300,
-          color: 'rgba(250,248,245,0.018)',
-          lineHeight: 1,
-          letterSpacing: '-0.06em',
-          pointerEvents: 'none',
-          userSelect: 'none',
-          zIndex: 0,
-          fontVariantNumeric: 'tabular-nums',
-        }}
-      >
-        {current.num}
-      </div>
-
-      {/* ── Top: eyebrow + fraction ── */}
-      <div className="tm-enter" style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 'clamp(3rem,6vw,6rem)',
-        position: 'relative', zIndex: 1,
+        display: 'flex', alignItems: 'center', gap: '1.2rem',
+        padding: '0 5vw', marginBottom: 'clamp(2.5rem,5vw,5rem)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
-          <div style={{ width: 32, height: 1, background: 'rgba(184,149,96,0.5)' }} />
-          <span style={{
-            fontSize: '.44rem', letterSpacing: '.34em',
-            textTransform: 'uppercase', color: 'rgba(184,149,96,0.65)',
-          }}>
-            Client Stories
-          </span>
-        </div>
-        <span style={{
-          fontFamily: 'var(--fd)', fontSize: '.9rem', fontWeight: 300,
-          color: 'rgba(250,248,245,0.12)', letterSpacing: '.1em',
-          fontVariantNumeric: 'tabular-nums',
-        }}>
-          {String(idx + 1).padStart(2,'0')}&thinsp;/&thinsp;{String(T.length).padStart(2,'0')}
+        <div className="ed-eyebrow-line"
+          style={{ width: 36, height: 1, background: 'var(--go)', flexShrink: 0 }} />
+        <span className="ed-eyebrow-text eyebrow" style={{ margin: 0 }}>
+          The Aura Edit — SS 2025
         </span>
       </div>
 
-      {/* ── Quote — animated line by line ── */}
-      <div style={{ position: 'relative', zIndex: 1, marginBottom: 'clamp(2.5rem,5vw,5rem)' }}>
-        {current.quote.map((line, li) => (
-          <QuoteLine
-            key={`${key}-${li}`}
-            text={line}
-            delay={li * 0.08}
-            direction={dir}
-          />
+      {/* ══ UPPER — headline + inline slots ══════════════════════════ */}
+      <div
+        className="ed-headline"
+        style={{ padding: '0 5vw', marginBottom: 'clamp(3rem,7vw,8rem)' }}
+      >
+        {LINES.map((chunks, li) => (
+          <div key={li} className="ed-line" style={{
+            display: 'flex', alignItems: 'center',
+            gap: 'clamp(.35rem,1.2vw,1.2rem)',
+            marginBottom: '.2rem',
+            flexWrap: isMobile ? 'wrap' : 'nowrap',
+          }}>
+            {/* Line index — hide on mobile */}
+            {!isMobile && (
+              <span style={{
+                fontFamily: 'var(--fb)', fontSize: '.44rem', letterSpacing: '.2em',
+                color: 'var(--mu)', minWidth: '2.5ch', alignSelf: 'flex-end',
+                paddingBottom: '.7rem', fontVariantNumeric: 'tabular-nums', flexShrink: 0,
+              }}>
+                {String(li + 1).padStart(2, '0')}
+              </span>
+            )}
+
+            {chunks.map((chunk, ci) =>
+              chunk.img ? (
+                <span key={ci} className="ed-img-slot" style={{
+                  display: 'inline-block',
+                  height: SLOT_H, width: 0,
+                  borderRadius: 4, overflow: 'hidden',
+                  position: 'relative', verticalAlign: 'middle', flexShrink: 0,
+                }}>
+                  <img
+                    className="ed-slot-img"
+                    src={chunk.img} alt={chunk.alt}
+                    style={{
+                      height: '100%', width: SLOT_W_TARGET + 60,
+                      position: 'absolute', left: '50%',
+                      transform: 'translateX(-50%)',
+                      objectFit: 'cover', objectPosition: 'center 20%',
+                      display: 'block', willChange: 'clip-path',
+                    }}
+                  />
+                  <div aria-hidden style={{
+                    position: 'absolute', inset: 0,
+                    background: 'radial-gradient(ellipse 100% 88% at 50% 42%, transparent 25%, rgba(0,0,0,0.38) 100%)',
+                    pointerEvents: 'none', zIndex: 1,
+                  }} />
+                </span>
+              ) : (
+                <span key={ci} style={{ display: 'inline-flex', flexWrap: 'wrap', gap: '0.2em' }}>
+                  {chunk.text.split(' ').filter(Boolean).map((word, wi) => (
+                    <span key={wi} style={{
+                      display: 'inline-block', overflow: 'hidden', verticalAlign: 'bottom',
+                    }}>
+                      <span className="ed-word-inner" style={{
+                        fontFamily: 'var(--fd)',
+                        fontSize: isMobile ? 'clamp(2.4rem,10vw,3.8rem)' : 'clamp(3rem,7vw,8.5rem)',
+                        fontWeight: 300, letterSpacing: '-0.03em', lineHeight: 0.95,
+                        color: 'var(--ch)', display: 'inline-block',
+                        fontStyle: li === 1 ? 'italic' : 'normal',
+                      }}>
+                        {word}
+                      </span>
+                    </span>
+                  ))}
+                </span>
+              )
+            )}
+          </div>
         ))}
       </div>
 
-      {/* ── Gold rule — animates in after quote ── */}
-      <div
-        ref={ruleRef}
-        style={{
-          height: 1,
-          background: 'linear-gradient(to right, rgba(184,149,96,0.7), rgba(184,149,96,0.15), transparent)',
-          width: '100%',
-          transformOrigin: 'left center',
-          marginBottom: 'clamp(2rem,4vw,4rem)',
-          position: 'relative', zIndex: 1,
-        }}
-      />
+      {/* Divider */}
+      <div className="ed-divider" style={{
+        height: 1, background: 'var(--bo)',
+        margin: `0 5vw clamp(2.5rem,5vw,5rem)`, transformOrigin: 'left',
+      }} />
 
-      {/* ── Meta: author + nav ── */}
-      <div
-        ref={metaRef}
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-end',
-          position: 'relative', zIndex: 1,
-        }}
-      >
-        {/* Author block */}
-        <div>
-          <p style={{
-            fontFamily: 'var(--fb)',
-            fontSize: '.58rem',
-            letterSpacing: '.22em',
-            textTransform: 'uppercase',
-            color: 'rgba(250,248,245,0.75)',
-            marginBottom: '.45rem',
-            fontWeight: 400,
+      {/* ══ LOWER — side image + body ════════════════════════════════ */}
+      <div className="ed-lower" style={{
+        padding: '0 5vw',
+        display: 'grid',
+        /* single col on mobile/tablet, two col on desktop */
+        gridTemplateColumns: isMobile || isTablet ? '1fr' : '1fr 1.1fr',
+        gap: isMobile ? '2.5rem' : isTablet ? '3rem' : 'clamp(3rem,6vw,8rem)',
+        alignItems: 'start',
+      }}>
+
+        {/* Left — editorial image */}
+        <div style={{ position: 'relative', overflow: 'hidden' }}>
+          <div className="ed-side-img" style={{
+            /* taller on desktop, landscape-ish on mobile */
+            aspectRatio: isMobile ? '4/3' : isTablet ? '16/9' : '3/4',
+            overflow: 'hidden', position: 'relative', willChange: 'clip-path',
           }}>
-            {current.author}
-          </p>
-          <p style={{
-            fontSize: '.44rem',
-            letterSpacing: '.18em',
-            textTransform: 'uppercase',
-            color: 'rgba(184,149,96,0.5)',
-          }}>
-            {current.location}&ensp;·&ensp;{current.piece}
-          </p>
+            <img
+              className="ed-side-img-inner"
+              src={SIDE_IMG} alt="AURA SS 2025 editorial"
+              style={{
+                width: '100%', height: '112%', objectFit: 'cover',
+                objectPosition: 'center top', display: 'block',
+                marginTop: '-6%', willChange: 'transform',
+              }}
+            />
+            <div style={{
+              position: 'absolute', inset: 0,
+              background: 'linear-gradient(to top, rgba(26,23,20,0.55) 0%, transparent 55%)',
+              pointerEvents: 'none', zIndex: 1,
+            }} />
+            {/* Caption */}
+            <div style={{
+              position: 'absolute', bottom: '1.2rem', left: '1.2rem',
+              zIndex: 2, display: 'flex', flexDirection: 'column', gap: '.2rem',
+            }}>
+              <span style={{
+                fontSize: '.46rem', letterSpacing: '.22em',
+                textTransform: 'uppercase', color: 'var(--go)',
+              }}>SS 2025</span>
+              <span style={{
+                fontFamily: 'var(--fd)',
+                fontSize: isMobile ? '.9rem' : 'clamp(.9rem,1.3vw,1.3rem)',
+                fontWeight: 300, fontStyle: 'italic',
+                color: 'rgba(250,248,245,0.92)', lineHeight: 1.15,
+              }}>Onyx Evening Dress</span>
+            </div>
+          </div>
+          {/* Gold accent line — hide on mobile */}
+          {!isMobile && (
+            <div style={{
+              position: 'absolute', bottom: '-1.5rem', right: 0,
+              width: '65%', height: 1,
+              background: 'linear-gradient(to left, var(--go), transparent)',
+            }} />
+          )}
         </div>
 
-        {/* Navigation */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          {/* Prev */}
-          <button
-            onClick={() => goTo(Math.max(idx - 1, 0))}
-            disabled={idx === 0}
-            aria-label="Previous"
-            style={{
-              background: 'none', border: 'none',
-              cursor: idx === 0 ? 'default' : 'pointer',
-              display: 'flex', alignItems: 'center', gap: '.6rem',
-              opacity: idx === 0 ? 0.18 : 0.55,
-              transition: 'opacity .3s',
-              padding: 0,
-            }}
-            onMouseEnter={e => { if (idx > 0) e.currentTarget.style.opacity = '1' }}
-            onMouseLeave={e => { e.currentTarget.style.opacity = idx === 0 ? '0.18' : '0.55' }}
-          >
-            <svg width="36" height="1" viewBox="0 0 36 1">
-              <line x1="36" y1="0.5" x2="0" y2="0.5" stroke="rgba(250,248,245,0.6)" strokeWidth="1"/>
-            </svg>
-            <svg width="8" height="12" viewBox="0 0 8 12" fill="none">
-              <path d="M7 1L1 6L7 11" stroke="rgba(250,248,245,0.6)" strokeWidth="1" strokeLinecap="round"/>
-            </svg>
-          </button>
+        {/* Right — body */}
+        <div style={{
+          display: 'flex', flexDirection: 'column',
+          gap: isMobile ? '1.75rem' : '2.5rem',
+          paddingTop: isMobile ? 0 : 'clamp(1rem,2vw,2rem)',
+        }}>
+          {/* Pull quote */}
+          <div className="ed-body-el">
+            <span className="eyebrow" style={{ marginBottom: '1rem', display: 'block' }}>
+              Editorial
+            </span>
+            <p style={{
+              fontFamily: 'var(--fd)',
+              fontSize: isMobile ? '1.1rem' : 'clamp(1.1rem,1.8vw,1.6rem)',
+              fontWeight: 300, fontStyle: 'italic', lineHeight: 1.5,
+              color: 'var(--ch)', letterSpacing: '-0.01em',
+            }}>
+              "Pieces designed not to be noticed at first glance — impossible to forget by the end of the evening."
+            </p>
+          </div>
 
-          {/* Dots — minimal pill style */}
-          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-            {T.map((_, i) => (
-              <div
-                key={i}
-                onClick={() => goTo(i)}
-                style={{
-                  width: i === idx ? 22 : 4,
-                  height: 1,
-                  background: i === idx
-                    ? 'rgba(184,149,96,0.8)'
-                    : 'rgba(250,248,245,0.15)',
-                  cursor: 'pointer',
-                  transition: 'all .5s cubic-bezier(.25,.46,.45,.94)',
+          {/* Body copy */}
+          <p className="ed-body-el" style={{
+            fontSize: '.82rem', lineHeight: 2,
+            color: 'var(--mu)', maxWidth: 460,
+          }}>
+            The new evening collection draws from the quietude of Parisian
+            ateliers. Bias-cut silhouettes, recessive palettes, and textures
+            that reward proximity — fashion as a private language.
+          </p>
+
+          {/* Thumb strip */}
+          <div
+            className="ed-thumb-strip"
+            style={{
+              display: 'flex', gap: '.4rem',
+              /* scroll on small screens instead of overflowing */
+              overflowX: isMobile ? 'auto' : 'visible',
+              WebkitOverflowScrolling: 'touch',
+              paddingBottom: isMobile ? '.5rem' : 0,
+            }}
+          >
+            {THUMBS.map((src, i) => (
+              <div key={i} className="ed-thumb" style={{
+                width: isMobile ? 60 : 70,
+                height: isMobile ? 76 : 88,
+                overflow: 'hidden', flexShrink: 0,
+                willChange: 'transform', borderRadius: 2,
+              }}>
+                <img src={src} alt="" style={{
+                  width: '100%', height: '100%', objectFit: 'cover', display: 'block',
+                  transition: 'transform .6s cubic-bezier(0.25,0.46,0.45,0.94)',
                 }}
-              />
+                  onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                />
+              </div>
+            ))}
+            {/* +18 pill */}
+            <div style={{
+              width: isMobile ? 60 : 70,
+              height: isMobile ? 76 : 88,
+              borderRadius: 2, background: 'var(--ch)',
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center',
+              gap: '.2rem', flexShrink: 0,
+            }}>
+              <span style={{
+                fontFamily: 'var(--fd)', fontSize: '1.1rem',
+                fontWeight: 300, color: 'var(--cr)', lineHeight: 1,
+              }}>+18</span>
+              <span style={{
+                fontSize: '.4rem', letterSpacing: '.2em',
+                textTransform: 'uppercase', color: 'rgba(250,248,245,0.4)',
+              }}>pieces</span>
+            </div>
+          </div>
+
+          {/* Meta strip */}
+          <div className="ed-body-el" style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: isMobile ? '1.2rem 2rem' : '2.5rem',
+            paddingTop: '1rem', borderTop: '1px solid var(--bo)',
+          }}>
+            {[['Season', 'SS 2025'], ['Location', 'Paris, FR'], ['Looks', '24 pieces']].map(([k, v]) => (
+              <div key={k}>
+                <p style={{
+                  fontSize: '.46rem', letterSpacing: '.18em',
+                  textTransform: 'uppercase', color: 'var(--mu)', marginBottom: '.3rem',
+                }}>{k}</p>
+                <p style={{ fontSize: '.72rem', color: 'var(--ch)', letterSpacing: '.04em' }}>{v}</p>
+              </div>
             ))}
           </div>
 
-          {/* Next */}
-          <button
-            onClick={() => goTo(Math.min(idx + 1, T.length - 1))}
-            disabled={idx === T.length - 1}
-            aria-label="Next"
-            style={{
-              background: 'none', border: 'none',
-              cursor: idx === T.length - 1 ? 'default' : 'pointer',
-              display: 'flex', alignItems: 'center', gap: '.6rem',
-              opacity: idx === T.length - 1 ? 0.18 : 0.55,
-              transition: 'opacity .3s',
-              padding: 0,
-            }}
-            onMouseEnter={e => { if (idx < T.length - 1) e.currentTarget.style.opacity = '1' }}
-            onMouseLeave={e => { e.currentTarget.style.opacity = idx === T.length - 1 ? '0.18' : '0.55' }}
-          >
-            <svg width="8" height="12" viewBox="0 0 8 12" fill="none">
-              <path d="M1 1L7 6L1 11" stroke="rgba(250,248,245,0.6)" strokeWidth="1" strokeLinecap="round"/>
-            </svg>
-            <svg width="36" height="1" viewBox="0 0 36 1">
-              <line x1="0" y1="0.5" x2="36" y2="0.5" stroke="rgba(250,248,245,0.6)" strokeWidth="1"/>
-            </svg>
-          </button>
+          {/* CTA */}
+          <div className="ed-body-el" style={{
+            display: 'flex',
+            flexWrap: isMobile ? 'wrap' : 'nowrap',
+            gap: isMobile ? '1rem' : '1.4rem',
+            alignItems: 'center',
+          }}>
+            <button
+              className="btn-primary"
+              style={{ width: isMobile ? '100%' : 'auto' }}
+            >
+              <span>Explore the Edit</span>
+            </button>
+            <button
+              style={{
+                background: 'none', border: 'none', fontFamily: 'var(--fb)',
+                fontSize: '.6rem', letterSpacing: '.15em', textTransform: 'uppercase',
+                color: 'var(--mu)', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: '.5rem',
+                transition: 'color .3s, gap .3s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = 'var(--go)'; e.currentTarget.style.gap = '.9rem' }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'var(--mu)'; e.currentTarget.style.gap = '.5rem' }}
+            >
+              Read Editorial
+              <svg width="18" height="5" viewBox="0 0 18 5" fill="none" aria-hidden>
+                <line x1="0" y1="2.5" x2="14" y2="2.5" stroke="currentColor" strokeWidth="0.8"/>
+                <path d="M11 1L14.5 2.5L11 4" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round"/>
+              </svg>
+            </button>
+          </div>
         </div>
-      </div>
-
-      {/* ── Bottom: brand watermark ── */}
-      <div style={{
-        position: 'absolute',
-        bottom: 'clamp(1.5rem,3vw,3rem)',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        fontSize: '.38rem',
-        letterSpacing: '.5em',
-        textTransform: 'uppercase',
-        color: 'rgba(250,248,245,0.08)',
-        pointerEvents: 'none',
-        userSelect: 'none',
-        zIndex: 1,
-        whiteSpace: 'nowrap',
-      }}>
-        AURA — High Fashion
       </div>
     </section>
   )
